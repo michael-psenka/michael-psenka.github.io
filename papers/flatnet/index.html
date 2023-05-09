@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Representation Learning via Manifold Flattening and Reconstruction</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="favicon.ico" />
 </head>
 <body>
     <header>
@@ -22,7 +23,7 @@
 
             <!-- a video frame that embeds a Youtube video -->
 			<div class="video-container">
-				<iframe width="560" height="315" src="https://www.youtube.com/embed/your_video_id" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+				<iframe width="840" height="473" src="https://www.youtube.com/embed/your_video_id" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 			</div>
         </section>
         <section id="intro-summary">
@@ -69,7 +70,7 @@
             <br><br>
             An experimental note: our geometric flow for this paper is compressive by nature, so manifolds like the Swiss roll serve as academic counterexamples to the kinds of manifolds our flow is able to flatten and regenerate. However, if you add an extra nonlinear feature to the data (here, we used $x_4 = x_1^2 + x_3^2$), then the flattening becomes much more tractible<sup><a href="#fn1" id="ref1">1</a></sup>. While this feature was chosen based on our knowledge of the Swiss roll, the same would have worked if we generated many different random nonlinear features; as long as one of the extra features spreads out the manifold like $x_4 = x_1^2 + x_3^2$ does for Swiss roll, the resulting feature set will render the new, lifted manifold flattenable.
             <!-- Add more figures as needed -->
-            <br><br><br><br>
+            <br><br>
         </section>
 
 		<section id="citation">
