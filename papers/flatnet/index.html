@@ -3,9 +3,6 @@
 <head>
     <meta charset="UTF-8">
 	<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Roboto&display=swap" rel="stylesheet">
-    <!-- latex -->
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 	<script src="https://kit.fontawesome.com/9987b45862.js" crossorigin="anonymous"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Representation Learning via Manifold Flattening and Reconstruction</title>
@@ -59,7 +56,7 @@
                 <img src="figs/output_path_compare.png" alt="MNIST images properly interpolated" style="width:65%">
                 <figcaption></figcaption>
             </figure>
-            <p><b>Figure 2:</b> an illustration of the benefit of linearized features. The bottom row are two MNIST images $x_a$ and $x_b$ linearly interpolated: $\lambda x_a + (1 - \lambda) x_b$, and the top row are the same two images, but (a) passed into features $f(x_a)$ and $f(x_b)$, (b) linearly interpolated as features, and (c) reconstructed using $g$: $g(\lambda f(x_a) + (1 - \lambda)f(x_b))$</p>
+            <p><b>Figure 2:</b> an illustration of the benefit of linearized features. The bottom row are two MNIST images $x_a$ and $x_b$ linearly interpolated: $\lambda x_a + (1 - \lambda) x_b$, and the top row are the same two images, but (a) passed into features $f(x_a)$ and $f(x_b)$, (b) linearly interpolated as features, and (c) reconstructed using $g$: $g(\lambda f(x_a) + (1 - \lambda)f(x_b))$. One benefit of linearizing the dataset is that nonlinear interpolation along the dataset becomes linear, allowing for proper data exploration. Note that not all interpolated examples in MNIST look like the one above, since even when flattened, MNIST still has some amoeba-like structure: see the main paper for the intrinsic features learned on the synthetically-generated MNIST sub-datasets.</p>
             <br><br><br><br>
             <figure>
                 <img src="figs/swiss_roll_original.png" alt="Swiss roll" style="width:33%">
@@ -67,7 +64,12 @@
                 <img src="figs/swiss_roll_reconstruction.png" alt="Learned reconstruction of Swiss roll" style="width:33%">
                 <figcaption>Figure 3: Description of the image</figcaption>
             </figure>
+
+            <b>Figure 3:</b> Results on the Swiss roll dataset. Not only do learned features look very close to the original rectangle that generated the manifold, but the entire construction was done densely in the embedding space: any points on the Swiss roll not in the training set will also automatically get mapped to their appropriate interpolated feature, without the need of any retraining.
+            <br><br>
+            An experimental note: our geometric flow for this paper is compressive by nature, so manifolds like the Swiss roll serve as academic counterexamples to the kinds of manifolds our flow is able to flatten and regenerate. However, if you add an extra nonlinear feature to the data (here, we used $x_4 = x_1^2 + x_3^2$), then the flattening becomes much more tractible<sup><a href="#fn1" id="ref1">1</a></sup>. While this feature was chosen based on our knowledge of the Swiss roll, the same would have worked if we generated many different random nonlinear features; as long as one of the extra features spreads out the manifold like $x_4 = x_1^2 + x_3^2$ does for Swiss roll, the resulting feature set will render the new, lifted manifold flattenable.
             <!-- Add more figures as needed -->
+            <br><br><br><br>
         </section>
 
 		<section id="citation">
@@ -83,6 +85,24 @@
 }
 			</pre>
 		</section>
+
+        
     </main>
+
+    <!-- latex -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+	<script type="text/x-mathjax-config">
+	MathJax.Hub.Config({
+	tex2jax: {
+		inlineMath: [['$','$'], ['\\(','\\)']],
+		displayMath: [['$$','$$'], ['\\[','\\]']],
+		processEscapes: true
+	}
+	});
+	</script>
 </body>
+
+<footer>
+    <p><sup id="fn1">1</sup> Our new autoencoder structure now goes as follows: (1) the data is lifted using the nonlinear feature: $(x_1, x_2, x_3) \rightarrow (x_1, x_2, x_3, x_1^2 + x_3^3)$. (2) The normal FlatNet autoencoding procedure is performed in the new 4D space, and (3) to get the original reconstructed data back, we simply chop off the 4th entry of the reconstructed 4D vector $g(f(x))$.</p>
+</footer>
 </html>
