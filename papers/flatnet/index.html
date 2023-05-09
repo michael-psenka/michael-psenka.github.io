@@ -34,7 +34,7 @@
             <ol>
                 <li>Pick a random point on the manifold,</li>
                 <li>Linearize and reconstruct the manifold locally near the chosen point, and</li>
-                <li>Add the linearization and reconstruction as layers to an encoder <math><mi>f</mi></math> and decoder <math><mi>g</mi></math>.</li>
+                <li>Add the local linearization and reconstruction as layers to an encoder <math><mi>f</mi></math> and decoder <math><mi>g</mi></math>.</li>
             </ol>
             <br>
             For details on the main geometric flow and how such flattenings and reconstructions are found from finite samples, see the main paper. Of important note here: <em>many intrinsic of the data and generated neural network model are chosen automatically</em>, including the intrinsic dimension of the data.
@@ -52,7 +52,7 @@
             <b>Figure 1:</b> An example of the algorithm's result on a noisy sine wave. The blue dots compose the original data set, the red dots are the resulting flattening, and the green line is the reconstructed manifold generated from (a) linearly interpolating the points in the flattened manifolds, and (b) passing the dense interpolated set through the reconstructor <math><mi>g</mi></math>.
             <br><br>
             Note that this geometric flow-based autoencoding method automatically denoised the data into the intrinsic manifold the data was generated from. While reconstruction quality dies off near the tails, this compounding error is certainly not an unavoidable problem, and is a good focus for future work.
-            <br><br><br><br>
+            <br><br><br><br><br><br>
             <figure>
                 <img src="figs/output_path_compare.png" alt="MNIST images properly interpolated" style="width:65%">
                 <figcaption></figcaption>
@@ -104,6 +104,6 @@
 </body>
 
 <footer>
-    <p><sup id="fn1">1</sup> Our new autoencoder structure now goes as follows: (1) the data is lifted using the nonlinear feature: $(x_1, x_2, x_3) \rightarrow (x_1, x_2, x_3, x_1^2 + x_3^3)$. (2) The normal FlatNet autoencoding procedure is performed in the new 4D space, and (3) to get the original reconstructed data back, we simply chop off the 4th entry of the reconstructed 4D vector $g(f(x))$.</p>
+    <p><sup id="fn1">1</sup> Our new autoencoder structure now goes as follows: (1) the data is lifted using the nonlinear feature: $(x_1, x_2, x_3) \rightarrow (x_1, x_2, x_3, x_1^2 + x_3^2)$. (2) The normal FlatNet autoencoding procedure is performed in the new 4D space, and (3) to get the original reconstructed data back, we simply chop off the 4th entry of the reconstructed 4D vector $g(f(x))$.</p>
 </footer>
 </html>
