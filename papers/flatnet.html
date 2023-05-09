@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+	<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Roboto&display=swap" rel="stylesheet">
+    <!-- latex -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+	<script src="https://kit.fontawesome.com/9987b45862.js" crossorigin="anonymous"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Representation Learning via Manifold Flattening and Reconstruction</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Representation Learning via Manifold Flattening and Reconstruction</h1>
+        <h2>Michael Psenka, Druv Pai, Vishal Raman, S. Shankar Sastry, Yi Ma</h2>
+    </header>
+    <main>
+		<div>
+			<a href="https://arxiv.org/abs/2305.01777" target="_blank" class="link-button"><i class="fa-solid fa-scroll"></i> Paper</a>
+			<a href="https://github.com/michael-psenka/manifold-linearization" target="_blank" class="link-button"><i class="fa-solid fa-code"></i> Code</a>
+		</div>
+        <section id="overview">
+
+            <!-- a video frame that embeds a Youtube video -->
+			<div class="video-container">
+				<iframe width="560" height="315" src="https://www.youtube.com/embed/your_video_id" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+			</div>
+        </section>
+        <section id="intro-summary">
+            <h2>Summary</h2>
+            This paper proposes a novel method for automatically constructing a nonlinear autoencoder pair for a given dataset, using manifold-type geometric properties of the data. In particular, we look to generate an autoencoding pair where the features are of minimal dimension, while still maintaining the invertibility property of the autoencoding pair. We achieve this through a particular type of manifold flattening. At each step, we:
+            <br><br>
+            
+            <ol>
+                <li>Pick a random point on the manifold,</li>
+                <li>Linearize and reconstruct the manifold locally near the chosen point, and</li>
+                <li>Add the linearization and reconstruction as layers to an encoder <math><mi>f</mi></math> and decoder <math><mi>g</mi></math>.</li>
+            </ol>
+            <br>
+            For details on the main geometric flow and how such flattenings and reconstructions are found from finite samples, see the main paper. Of important note here: <em>many intrinsic of the data and generated neural network model are chosen automatically</em>, including the intrinsic dimension of the data.
+        </section>
+        <section id="graphics">
+            <h2>Illustrative examples</h2>
+            The focus of this work are the learned representations of the data. We hypothesize that learning geometrically flattened representations yields many properties that many desire from pursuits like "disentangled representation learning": feature separability, linear interpolatability, and generally leading to ease of downstream learning tasks. This paper is a demonstration that such "geometric representation learning" is feasible, and yields training algorithms with only a handful of scalar hyperparameters to choose.
+            
+            
+            Below are a few visual examples from the paper to illustrate what our method hopes to achieve. Note that reconstruction quality is not the focus of this work, and thus they are not perfect: these imperfections and tail behaviors come from a "compounding errors" problem, as we compute these global inverse maps by stacking many local inverse maps. As described in the main paper however, computing these local inverses is still necessary to learn good intrinsic representations.
+            <figure>
+                <img src="figs/flattening-example.png" alt="Image of sine wave being flattened and reconstructed" style="width:50%">
+                <figcaption></figcaption>
+            </figure>
+            <b>Figure 1:</b> An example of the algorithm's result on a noisy sine wave. The blue dots compose the original data set, the red dots are the resulting flattening, and the green line is the reconstructed manifold generated from (a) linearly interpolating the points in the flattened manifolds, and (b) passing the dense interpolated set through the reconstructor <math><mi>g</mi></math>.
+            <br><br>
+            Note that this geometric flow-based autoencoding method automatically denoised the data into the intrinsic manifold the data was generated from. While reconstruction quality dies off near the tails, this compounding error is certainly not an unavoidable problem, and is a good focus for future work.
+            <br><br><br><br>
+            <figure>
+                <img src="figs/output_path_compare.png" alt="MNIST images properly interpolated" style="width:65%">
+                <figcaption></figcaption>
+            </figure>
+            <p><b>Figure 2:</b> an illustration of the benefit of linearized features. The bottom row are two MNIST images $x_a$ and $x_b$ linearly interpolated: $\lambda x_a + (1 - \lambda) x_b$, and the top row are the same two images, but (a) passed into features $f(x_a)$ and $f(x_b)$, (b) linearly interpolated as features, and (c) reconstructed using $g$: $g(\lambda f(x_a) + (1 - \lambda)f(x_b))$</p>
+            <br><br><br><br>
+            <figure>
+                <img src="figs/swiss_roll_original.png" alt="Swiss roll" style="width:33%">
+                <img src="figs/swiss_roll_cc_features.png" alt="Learned features of Swiss roll" style="width:33%">
+                <img src="figs/swiss_roll_reconstruction.png" alt="Learned reconstruction of Swiss roll" style="width:33%">
+                <figcaption>Figure 3: Description of the image</figcaption>
+            </figure>
+            <!-- Add more figures as needed -->
+        </section>
+
+		<section id="citation">
+			<h2>Citation</h2>
+			<!-- Write a Bibtex entry for this paper -->
+			<pre class="citation">
+@article{psenka2023flatnet,
+	title={Representation Learning via Manifold Flattening and Reconstruction},
+	author={Psenka, Michael and Pai, Druv and Raman, Vishal and Sastry, Shankar and Ma, Yi},
+	year = {2023},
+  	eprint = {2305.01777},
+  	url = {https://arxiv.org/abs/2305.01777},
+}
+			</pre>
+		</section>
+    </main>
+</body>
+</html>
