@@ -148,4 +148,9 @@ footer {
       display: inline-block;
       vertical-align: middle;
     }
+
+    /* change width of iframe with id youtube_vid to 100% */
+    #youtube_vid {
+        width: 100%;
+    }
   }
