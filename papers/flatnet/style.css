@@ -138,3 +138,14 @@ footer {
 .fa-volume-high {
     font-size: 2rem;
 }
+
+/* mobile friendly */
+
+@media screen and (max-width: 830px) {
+    body  {
+        /* resize body to be screen width */
+      width: 100%;
+      display: inline-block;
+      vertical-align: middle;
+    }
+  }
