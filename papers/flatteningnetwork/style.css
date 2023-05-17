@@ -139,6 +139,16 @@ footer {
     font-size: 2rem;
 }
 
+/* fix overflow problems */
+.citation-container {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.citation {
+    white-space: pre-wrap;
+}
+
 /* mobile friendly */
 
 @media screen and (max-width: 830px) {
@@ -152,5 +162,10 @@ footer {
     /* change width of iframe with id youtube_vid to 100% */
     #youtube_vid {
         width: 100%;
+    }
+
+/* fix overflow problems */
+    .citation {
+        white-space: pre-wrap;
     }
   }
