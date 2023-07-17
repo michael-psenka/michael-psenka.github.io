@@ -3071,7 +3071,6 @@ h4.package {
     background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 20%, rgba(255, 255, 255, 0.0) 40%), radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 15%, rgba(255, 255, 255, 0.04) 30%);
     /* background-color: rgba(255, 255, 255, 0.04); */
     box-shadow: 8px 8px 8px rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(10px);
     border-radius: 10px;
     background-attachment: fixed;
 }
