@@ -3130,10 +3130,19 @@ h4.package {
 
 /* **************************************************** */
 /* text animation stylin */
+/* **************************************************** */
+
+/* makes popping in/out title text smoother */
 #focus-text {
     opacity: 1;
     transition: opacity 0.3s ease-in-out;
 }
+/* for when we face out at final reveal */
+#research-desc-click {
+    opacity: 1;
+    transition: opacity 0.6s ease-in-out;
+}
+
 
 .passive-glow {
     animation: passive-glow 2s ease-in-out infinite;
@@ -3166,7 +3175,7 @@ h4.package {
     }
 
     50% {
-        filter: brightness(1.5);
+        filter: brightness(1.7);
     }
 
     100% {

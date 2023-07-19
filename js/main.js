@@ -339,13 +339,18 @@ function animateText() {
 				i++;
 				requestId = requestAnimationFrame(updateText);
 			} else {
-				// turn on link again when done animating
-				icon.href = '#';
-				icon.classList.add('passive-glow-nogrow');
-				isAnimating = false;
-
-				if (index === texts.length) {
-					icon.remove(); // Remove icon element from HTML document
+				// if not final time, turn on link again when done animating, if not the final time
+				if (index < texts.length ) {
+					icon.href = '#';
+					icon.classList.add('passive-glow-nogrow');
+					isAnimating = false;
+				}
+				// if final time, fade out and remove icon NOTE: make sure delay matches style.css
+				else {
+					icon.style.opacity = '0';
+					setTimeout(() => {
+						icon.remove();
+					}, 600);
 				}
 			}
 		};
