@@ -178,75 +178,12 @@
 		$(this).closest('.hgroup').find('.edu-hidden-content').slideToggle();
 	});
 
-	// Intialize Map
-	// google.maps.event.addDomListener(window, 'load', init);
-
-	// function init() {
-	// 	// Basic options for a simple Google Map
-	// 	// For more options see: https://developers.google.com/maps/documentation/javascript/reference#MapOptions
-	// 	var mapOptions = {
-	// 		// How zoomed in you want the map to start at (always required)
-	// 		zoom: 11,
-
-	// 		// The latitude and longitude to center the map (always required)
-	// 		center: new google.maps.LatLng(40.6700, -73.9400),
-
-	// 		scrollwheel: false,
-
-
-	// 		// How you would like to style the map.
-	// 		// This is where you would paste any style found on Snazzy Maps.
-	// 		styles: [{
-	// 			featureType: 'all',
-	// 			stylers: [{
-	// 				saturation: -65
-	// 			}]
-	// 		}, {
-	// 			featureType: 'road.arterial',
-	// 			elementType: 'geometry',
-	// 			stylers: [{
-	// 				hue: '#00ffee'
-	// 			}, {
-	// 				saturation: 80
-	// 			}]
-	// 		}, {
-	// 			featureType: 'poi.business',
-	// 			elementType: 'labels',
-	// 			stylers: [{
-	// 				visibility: 'off'
-	// 			}]
-	// 		}]
-	// 	};
-
-	// 	// Get the HTML DOM element that will contain your map
-	// 	// We are using a div with id="map" seen below in the <body>
-	// 	var mapElement = document.getElementById('map');
-
-	// 	// Create the Google Map using our element and options defined above
-	// 	var map = new google.maps.Map(mapElement, mapOptions);
-
-	// 	var image = 'images/map-marker.png';
-	// 	// Let's also add a marker while we're at it
-	// 	var marker = new google.maps.Marker({
-	// 		position: new google.maps.LatLng(40.6700, -73.9400),
-	// 		map: map,
-	// 		icon: image,
-	// 		draggable: true,
-	// 		animation: google.maps.Animation.DROP
-	// 	});
-	// 	marker.addListener('click', toggleBounce);
-
-	// 	function toggleBounce() {
-	// 		if (marker.getAnimation() !== null) {
-	// 			marker.setAnimation(null);
-	// 		} else {
-	// 			marker.setAnimation(google.maps.Animation.BOUNCE);
-	// 		}
-	// 	}
-	// }
 })(jQuery);
 
+// ***************************************************************************************
 // Startup code to change names to links
+// ***************************************************************************************
+
 window.addEventListener('load', function () {
 	// Get all .publication-authors elements
 	const authors = document.querySelectorAll('.publication-authors');
@@ -314,6 +251,108 @@ window.addEventListener('load', function () {
 		});
 	});
 });
+
+// ***************************************************************************************
+// Animating research description text, clickable expansion
+// ***************************************************************************************
+
+// getting necessary HTML elements
+const icon = document.getElementById('research-desc-click');
+const textTitle = document.getElementById('focus-text');
+const textBody = document.getElementById('research-desc-body');
+// the subject of the text being unrolled
+let focus = 'AI';
+// controls what section of text we're on
+let index = 0;
+// don't want button clickable while animating 
+let isAnimating = false;
+// need to define outside scope for animation
+let requestId;
+// time (in milliseconds) for the title to fade out or in, as defined in style.css
+// NOTE: make sure this matches the appropriate value in style.css
+let fadeTime = 300;
+
+// description text to add
+const texts = [
+	'The modern frontier of AI, deep learning consists of designing and studying models composed with many "layers" (e.g. transformers, the backbone behind GPT).',
+	' I focus on cases where data is not necessarily labeled (or "supervised") by a human. This both opens up a lot more use cases (much more data is unlabeled than labeled) and makes the problem more mathematically interesting, since we now need to make the most of the data itself.',
+	' One common domain of unsupervised learning is representation learning, where we seek to encode our data into a different format that is more useful for various downstream tasks. The desired encoded format is usually quite compressed, and we desire it to only contain the "intrinsic information" of our data.',
+	'Representation learning becomes quite interesting when we want to encode multiple modalities (e.g. images and text) together, in a way where we can mathematically compare the two modalities. CLIP is a common example of this, but has fundamental limitations that I am aiming to address.',
+	'Finally, my particular niche: datasets and their representations are fundamentally geometric objects (like a Riemannian submanifold, but not quite), and for any hope of a truly fully unsupervised paradigm for more generic datasets and modalities, we need to exploit the intrinsic geometric structure of these datasets. While global mathematical models have fallen out of style (it\'s hard to write "the equation of images"), local models are much easier to write down and still yield tremendous yet general power.'
+];
+
+// Add CSS class to make icon passively glow and increase font size
+icon.classList.add('passive-glow');
+textBody.style.height = '30px';
+
+icon.addEventListener('click', () => {
+	// turn off link until we're done animating
+	icon.href = 'javascript:void(0)';
+	icon.classList.remove('passive-glow-nogrow');
+
+	if (!isAnimating) {
+		// title texts to loop through.
+		focus = focus === 'AI' ? 'deep learning' :
+			focus = focus === 'deep learning' ? 'unsupervised learning' :
+				focus === 'unsupervised learning' ? 'unsupervised representation learning' :
+					focus === 'unsupervised representation learning' ? 'unsupervised multimodal representation learning' :
+						focus === 'unsupervised multimodal representation learning' ? 'geometric unsupervised multimodal representation learning' :
+							'AI and deep learning';
+		textTitle.style.opacity = '0';
+		setTimeout(() => {
+			textTitle.innerHTML = focus;
+			textTitle.style.opacity = '1';
+		}, fadeTime);
+		// only want to start animating body text after the title has faded back in.
+		setTimeout(() => {
+			cancelAnimationFrame(requestId); // Cancel animation frame when icon is clicked again
+			animateText();
+		}, fadeTime * 2);
+		// Remove CSS class to stop passive glow and reset font size
+		textBody.style.height = '';
+		icon.classList.remove('passive-glow');
+	}
+
+	isAnimating = true;
+});
+
+function animateText() {
+	if (index < texts.length) {
+		const currentText = texts[index];
+		const currentTextLength = currentText.length;
+		let i = 0;
+
+		// for certain indexes, we want to insert a line break at the beginning.
+		if (index === 3 || index === 4) {
+			icon.insertAdjacentHTML('beforebegin', '<br><br>');
+		}
+		const updateText = () => {
+			if (i < currentTextLength) {
+
+				// bolding the little intro blurb for final paragraph
+				if (index == 5 && i < 29) {
+					// for the last text, we want to insert a line break at the beginning.
+					icon.insertAdjacentHTML('beforebegin', '<b>' + currentText.charAt(i) + '</b>');
+				} else {
+					icon.insertAdjacentHTML('beforebegin', currentText.charAt(i));
+				}
+				i++;
+				requestId = requestAnimationFrame(updateText);
+			} else {
+				// turn on link again when done animating
+				icon.href = '#';
+				icon.classList.add('passive-glow-nogrow');
+				isAnimating = false;
+
+				if (index === texts.length) {
+					icon.remove(); // Remove icon element from HTML document
+				}
+			}
+		};
+		index++;
+		requestId = requestAnimationFrame(updateText);
+	}
+}
 
 /* * 
  * audio visualizer with html5 audio element
