@@ -3002,29 +3002,19 @@ h4.package {
     background-attachment: fixed;
 }
 
-
-.publication-title {
-    font-weight: bold;
-    line-height: 1.5;
-}
-
-.publication-authors {
-    line-height: 1.5;
-}
-
-.publication-journal {
-    font-weight: bold;
-    line-height: 1.5;
-}
-
 .publication-details p {
     margin-bottom: 0px;
+}
+
+.publication-title, .publication-journal {
+    font-weight: bold;
 }
 
 .publication-title,
 .publication-authors,
 .publication-journal {
     margin-bottom: 0px;
+    line-height: 1.5;
 }
 
 .publication-image {
