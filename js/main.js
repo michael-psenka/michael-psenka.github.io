@@ -274,11 +274,10 @@ let fadeTime = 300;
 
 // description text to add
 const texts = [
-	'The modern frontier of AI, deep learning consists of designing and studying models composed with many "layers" (e.g. transformers, the backbone behind GPT).',
 	' I focus on cases where data is not necessarily labeled (or "supervised") by a human. This both opens up a lot more use cases (much more data is unlabeled than labeled) and makes the problem more mathematically interesting, since we now need to make the most of the data itself.',
 	' One common domain of unsupervised learning is representation learning, where we seek to encode our data into a different format that is more useful for various downstream tasks. The desired encoded format is usually quite compressed, and we desire it to only contain the "intrinsic information" of our data.',
-	'Representation learning becomes quite interesting when we want to encode multiple modalities (e.g. images and text) together, in a way where we can mathematically compare the two modalities. CLIP is a common example of this, but has fundamental limitations that I am aiming to address.',
-	'Finally, my particular niche: datasets and their representations are fundamentally geometric objects (like a Riemannian submanifold, but not quite), and for any hope of a truly fully unsupervised paradigm for more generic datasets and modalities, we need to exploit the intrinsic geometric structure of these datasets. While global mathematical models have fallen out of style (it\'s hard to write "the equation of images"), local models are much easier to write down and still yield tremendous yet general power.'
+	' Representation learning becomes quite interesting when we want to encode multiple modalities (e.g. images and text) together, in a way where we can mathematically compare the two modalities. CLIP is a common example of this, but has fundamental limitations that I am aiming to address.',
+	' Finally, my particular niche: datasets and their representations are fundamentally geometric objects (like a Riemannian submanifold, but not quite), and for any hope of a truly fully unsupervised paradigm for more generic datasets and modalities, we need to exploit the intrinsic geometric structure of these datasets. While global mathematical models have fallen out of style (it\'s hard to write "the equation of images"), local models are much easier to write down and still yield tremendous yet general power.'
 ];
 
 // Add CSS class to make icon passively glow and increase font size
@@ -292,12 +291,11 @@ icon.addEventListener('click', () => {
 
 	if (!isAnimating) {
 		// title texts to loop through.
-		focus = focus === 'AI' ? 'deep learning' :
-			focus = focus === 'deep learning' ? 'unsupervised learning' :
-				focus === 'unsupervised learning' ? 'unsupervised representation learning' :
-					focus === 'unsupervised representation learning' ? 'unsupervised multimodal representation learning' :
-						focus === 'unsupervised multimodal representation learning' ? 'geometric unsupervised multimodal representation learning' :
-							'AI and deep learning';
+		focus = focus === 'AI' ? 'unsupervised learning' :
+			focus === 'unsupervised learning' ? 'unsupervised representation learning' :
+				focus === 'unsupervised representation learning' ? 'unsupervised multimodal representation learning' :
+					focus === 'unsupervised multimodal representation learning' ? 'geometric unsupervised multimodal representation learning' :
+						'AI';
 		textTitle.style.opacity = '0';
 		setTimeout(() => {
 			textTitle.innerHTML = focus;
@@ -340,7 +338,7 @@ function animateText() {
 				requestId = requestAnimationFrame(updateText);
 			} else {
 				// if not final time, turn on link again when done animating, if not the final time
-				if (index < texts.length ) {
+				if (index < texts.length) {
 					icon.href = '#';
 					icon.classList.add('passive-glow-nogrow');
 					isAnimating = false;
