@@ -261,7 +261,7 @@ const icon = document.getElementById('research-desc-click');
 const textTitle = document.getElementById('focus-text');
 const textBody = document.getElementById('research-desc-body');
 // the subject of the text being unrolled
-let focus = 'AI';
+let focus = 'geometric AI';
 // controls what section of text we're on
 let index = 0;
 // don't want button clickable while animating 
@@ -274,14 +274,19 @@ let fadeTime = 300;
 
 // description text to add
 const texts = [
-	' I focus on cases where data is not necessarily labeled (or "supervised") by a human. This both opens up a lot more use cases (much more data is unlabeled than labeled) and makes the problem more mathematically interesting, since we now need to make the most of the data itself.',
-	' One common domain of unsupervised learning is representation learning, where we seek to encode our data into a different format that is more useful for various downstream tasks. The desired encoded format is usually quite compressed, and we desire it to only contain the "intrinsic information" of our data.',
-	' Representation learning becomes quite interesting when we want to encode multiple modalities (e.g. images and text) together, in a way where we can mathematically compare the two modalities. CLIP is a common example of this, but has fundamental limitations that I am aiming to address.',
-	' Finally, my particular niche: datasets and their representations are fundamentally geometric objects (like a Riemannian submanifold, but not quite), and for any hope of a truly fully unsupervised paradigm for more generic datasets and modalities, we need to exploit the intrinsic geometric structure of these datasets. While global mathematical models have fallen out of style (it\'s hard to write "the equation of images"), local models are much easier to write down and still yield tremendous yet general power.'
+	' By looking at the shape of a learned reward structure (e.g. Q-function), we can optimize over more interesting policy classes, such as diffusion models, and develop new learning algorithms to better exploit difficult-to-learn aspects, such as long-term behavior.',
+	' Looking at geometric structure of learned representations of datasets can be a powerful tool for developing practical, general nonlinear ICA algorithms that are data-efficient and automatic (hyperpameters, network width & depth all build themselves).',
+	' The alignment of features from different modalities (e.g. images and text) is a fundamental problem in AI and a fundamentally geometric problem. Finding feature alignment methods that respect the intrinsic structure of both the sequence-type sentence and signal-type image is an open problem I am currently working on.'
 ];
+// const texts = [
+// 	' I focus on cases where data is not necessarily labeled (or "supervised") by a human. This both opens up a lot more use cases (much more data is unlabeled than labeled) and makes the problem more mathematically interesting, since we now need to make the most of the data itself.',
+// 	' One common domain of unsupervised learning is representation learning, where we seek to encode our data into a different format that is more useful for various downstream tasks. The desired encoded format is usually quite compressed, and we desire it to only contain the "intrinsic information" of our data.',
+// 	' Representation learning becomes quite interesting when we want to encode multiple modalities (e.g. images and text) together, in a way where we can mathematically compare the two modalities. CLIP is a common example of this, but has fundamental limitations that I am aiming to address.',
+// 	' Finally, my particular niche: datasets and their representations are fundamentally geometric objects (like a Riemannian submanifold, but not quite), and for any hope of a truly fully unsupervised paradigm for more generic datasets and modalities, we need to exploit the intrinsic geometric structure of these datasets. While global mathematical models have fallen out of style (it\'s hard to write "the equation of images"), local models are much easier to write down and still yield tremendous yet general power.'
+// ];
 
 // Add CSS class to make icon passively glow and increase font size
-icon.classList.add('passive-glow');
+icon.classList.add('passive-glow-nogrow');
 textBody.style.height = '30px';
 
 icon.addEventListener('click', () => {
@@ -291,11 +296,10 @@ icon.addEventListener('click', () => {
 
 	if (!isAnimating) {
 		// title texts to loop through.
-		focus = focus === 'AI' ? 'unsupervised learning' :
-			focus === 'unsupervised learning' ? 'unsupervised representation learning' :
-				focus === 'unsupervised representation learning' ? 'unsupervised multimodal representation learning' :
-					focus === 'unsupervised multimodal representation learning' ? 'geometric unsupervised multimodal representation learning' :
-						'AI';
+		focus = focus === 'geometric AI' ? 'geometric AI, reinforcement learning' :
+			focus === 'geometric AI, reinforcement learning' ? 'geometric AI, reinforcement learning, disentangled representation learning' :
+				focus === 'geometric AI, reinforcement learning, disentangled representation learning' ? 'geometric AI, reinforcement learning, disentangled representation learning, multimodal alignment' :
+					'geometric AI';
 		textTitle.style.opacity = '0';
 		setTimeout(() => {
 			textTitle.innerHTML = focus;
@@ -308,7 +312,7 @@ icon.addEventListener('click', () => {
 		}, fadeTime * 2);
 		// Remove CSS class to stop passive glow and reset font size
 		textBody.style.height = '';
-		icon.classList.remove('passive-glow');
+		icon.classList.remove('passive-glow-nogrow');
 	}
 
 	isAnimating = true;
@@ -321,7 +325,7 @@ function animateText() {
 		let i = 0;
 
 		// for certain indexes, we want to insert a line break at the beginning.
-		if (index === 3 || index === 4) {
+		if (index == 0 || index === 1 || index === 2) {
 			icon.insertAdjacentHTML('beforebegin', '<br><br>');
 		}
 		const updateText = () => {
