@@ -11,81 +11,27 @@
 </head>
 <body>
     <header>
-        <h1>Representation Learning via Manifold Flattening and Reconstruction</h1>
-        <h2>Michael Psenka, Druv Pai, Vishal Raman, S. Shankar Sastry, Yi Ma</h2>
+        <h1>Learning a Diffusion Model Policy from Rewards via Q Score Matching</h1>
+        <h2>Michael Psenka*, Alejandro Escontrela*, Pieter Abbeel, Yi Ma</h2>
     </header>
     <main>
 		<div>
-			<a href="https://www.jmlr.org/papers/volume25/23-0615/23-0615.pdf" target="_blank" class="link-button"><i class="fa-solid fa-scroll"></i> Paper</a>
-			<a href="https://github.com/michael-psenka/manifold-linearization" target="_blank" class="link-button"><i class="fa-solid fa-code"></i> Code</a>
+			<a href="https://arxiv.org/abs/2312.11752" target="_blank" class="link-button"><i class="fa-solid fa-scroll"></i> Paper</a>
+			<a href="https://github.com/Alescontrela/score_matching_rl" target="_blank" class="link-button"><i class="fa-solid fa-code"></i> Code</a>
 		</div>
-        <section id="overview">
 
-            <!-- a video frame that embeds a Youtube video -->
-			<div class="video-container">
-				<iframe id="youtube_vid" width="840" height="473" src="https://www.youtube.com/embed/BHUmkr9apSM" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-			</div>
-            <i class="fa-solid fa-volume-high"></i>
-        </section>
-        <section id="intro-summary">
-            <h2>Summary</h2>
-            This paper proposes a novel method for automatically constructing a nonlinear autoencoder pair for a given dataset, using manifold-type geometric properties of the data. In particular, we look to generate an autoencoding pair where the features are of minimal dimension, while still maintaining the invertibility property of the autoencoding pair. We achieve this through a particular type of manifold flattening. At each step, we:
-            <br><br>
-            
-            <ol>
-                <li>Pick a random point on the manifold,</li>
-                <li>Linearize and reconstruct the manifold locally near the chosen point, and</li>
-                <li>Add the local linearization and reconstruction as layers to an encoder <math><mi>f</mi></math> and decoder <math><mi>g</mi></math>.</li>
-            </ol>
-            <br>
-            For details on the main geometric flow and how such flattenings and reconstructions are found from finite samples, see the main paper. Of important note here: <em>many intrinsic properties of the data and generated neural network models are chosen automatically</em>, including the intrinsic dimension of the data, the width & depth of the networks, stopping time, etc.
-        </section>
-        <section id="graphics">
-            <h2>Illustrative examples</h2>
-            The focus of this work are the learned representations of the data. We hypothesize that learning geometrically flattened representations yields many properties that many desire from pursuits like "disentangled representation learning": feature separability, linear interpolatability, and generally leading to ease of downstream learning tasks. This paper is a demonstration that such "geometric representation learning" is feasible, and yields training algorithms with only a handful of scalar hyperparameters to choose.
-            
-            
-            Below are a few visual examples from the paper to illustrate what our method hopes to achieve. Note that reconstruction quality is not the focus of this work, and thus they are not perfect: these imperfections and tail behaviors come from a "compounding errors" problem, as we compute these global inverse maps by stacking many local inverse maps. As described in the main paper however, computing these local inverses is still necessary to learn good intrinsic representations.
-            <figure>
-                <img src="figs/flattening-example.png" alt="Image of sine wave being flattened and reconstructed" style="width:50%">
-                <figcaption></figcaption>
-            </figure>
-            <b>Figure 1:</b> An example of the algorithm's result on a noisy sine wave. The blue dots compose the original data set, the red dots are the resulting flattening, and the green line is the reconstructed manifold generated from (a) linearly interpolating the points in the flattened manifolds, and (b) passing the dense interpolated set through the reconstructor <math><mi>g</mi></math>.
-            <br><br>
-            Note that this geometric flow-based autoencoding method automatically denoised the data into the intrinsic manifold the data was generated from. While reconstruction quality dies off near the tails, this compounding error is certainly not an unavoidable problem, and is a good focus for future work.
-            <br><br><br><br><br><br>
-            <figure>
-                <img src="figs/output_path_compare.png" alt="MNIST images properly interpolated" style="width:65%">
-                <figcaption></figcaption>
-            </figure>
-            <p><b>Figure 2:</b> an illustration of the benefit of linearized features. The bottom row are two MNIST images $x_a$ and $x_b$ linearly interpolated: $\lambda x_a + (1 - \lambda) x_b$, and the top row are the same two images, but (a) passed into features $f(x_a)$ and $f(x_b)$, (b) linearly interpolated as features, and (c) reconstructed using $g$: $g(\lambda f(x_a) + (1 - \lambda)f(x_b))$. One benefit of linearizing the dataset is that nonlinear interpolation along the dataset becomes linear, allowing for proper data exploration. Note that not all interpolated examples in MNIST look like the one above, since even when flattened, MNIST still has some amoeba-like structure: see the main paper for the intrinsic features learned on the synthetically-generated MNIST sub-datasets.</p>
-            <br><br><br><br>
-            <figure>
-                <img src="figs/swiss_roll_original.png" alt="Swiss roll" style="width:33%">
-                <img src="figs/swiss_roll_cc_features.png" alt="Learned features of Swiss roll" style="width:33%">
-                <img src="figs/swiss_roll_reconstruction.png" alt="Learned reconstruction of Swiss roll" style="width:33%">
-                <figcaption></figcaption>
-            </figure>
-
-            <b>Figure 3:</b> Results on the Swiss roll dataset. Not only do learned features look very close to the original rectangle that generated the manifold, but the entire construction was done densely in the embedding space: any points on the Swiss roll not in the training set will also automatically get mapped to their appropriate interpolated feature, without the need of any retraining.
-            <br><br>
-            An experimental note: our geometric flow for this paper is compressive by nature, so manifolds like the Swiss roll serve as academic counterexamples to the kinds of manifolds our flow is able to flatten and regenerate. However, if you add an extra nonlinear feature to the data (here, we used $x_4 = x_1^2 + x_3^2$), then the flattening becomes much more tractible<sup><a href="#fn1" id="ref1">1</a></sup>. While this feature was chosen based on our knowledge of the Swiss roll, the same would have worked if we generated many different random nonlinear features; as long as one of the extra features spreads out the manifold like $x_4 = x_1^2 + x_3^2$ does for Swiss roll, the resulting feature set will render the new, lifted manifold flattenable.
-            <!-- Add more figures as needed -->
-            <br><br>
-        </section>
 
 		<section id="citation">
 			<h2>Citation</h2>
 			<!-- Write a Bibtex entry for this paper -->
             <div class="citation-container">
                 <pre class="citation">
-@article{psenka2023flatnet,
-	title={Representation Learning via Manifold Flattening and Reconstruction},
-	author={Psenka, Michael and Pai, Druv and Raman, Vishal and Sastry, Shankar and Ma, Yi},
-	year = {2023},
-  	eprint = {2305.01777},
-  	url = {https://arxiv.org/abs/2305.01777},
-}
+                    @inproceedings{psenka2024qsm,
+                        title={Learning a Diffusion Model Policy from Rewards via Q-Score Matching},
+                        author={Psenka, Michael and Escontrela, Alejandro and Abbeel, Pieter and Ma, Yi},
+                        booktitle={Proceedings of the 41st International Conference on Machine Learning},
+                        year={2024}
+                      }
                 </pre>
             </div>
 		</section>
@@ -106,7 +52,4 @@
 	</script>
 </body>
 
-<footer>
-    <p><sup id="fn1">1</sup> Our new autoencoder structure now goes as follows: (1) the data is lifted using the nonlinear feature: $(x_1, x_2, x_3) \rightarrow (x_1, x_2, x_3, x_1^2 + x_3^2)$. (2) The normal FlatNet autoencoding procedure is performed in the new 4D space, and (3) to get the original reconstructed data back, we simply chop off the 4th entry of the reconstructed 4D vector $g(f(x))$.</p>
-</footer>
 </html>
