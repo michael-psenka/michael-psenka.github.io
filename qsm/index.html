@@ -2,28 +2,26 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-	<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Roboto&display=swap" rel="stylesheet">
-	<script src="https://kit.fontawesome.com/9987b45862.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Roboto&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/9987b45862.js" crossorigin="anonymous"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Learning a Diffusion Model Policy from Rewards via Q-Score Matching</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=1.1">
     <link rel="icon" href="favicon.ico" />
 </head>
 <body>
     <header>
         <h1>Learning a Diffusion Model Policy from Rewards via Q-Score Matching</h1>
         <h2>Michael Psenka*, Alejandro Escontrela*, Pieter Abbeel, Yi Ma</h2>
+        <button id="dark-mode-toggle" class="link-button"><i class="fa-solid fa-moon"></i> Toggle Dark Mode</button>
     </header>
     <main>
-		<div>
-			<a href="https://arxiv.org/abs/2312.11752" target="_blank" class="link-button"><i class="fa-solid fa-scroll"></i> Paper</a>
-			<a href="https://github.com/Alescontrela/score_matching_rl" target="_blank" class="link-button"><i class="fa-solid fa-code"></i> Code</a>
-		</div>
-
-
-		<section id="citation">
-			<h2>Citation</h2>
-			<!-- Write a Bibtex entry for this paper -->
+        <div>
+            <a href="https://arxiv.org/abs/2312.11752" target="_blank" class="link-button"><i class="fa-solid fa-scroll"></i> Paper</a>
+            <a href="https://github.com/Alescontrela/score_matching_rl" target="_blank" class="link-button"><i class="fa-solid fa-code"></i> Code</a>
+        </div>
+        <section id="citation">
+            <h2>Citation</h2>
             <div class="citation-container">
                 <pre class="citation">
                     @inproceedings{psenka2024qsm,
@@ -34,22 +32,23 @@
                       }
                 </pre>
             </div>
-		</section>
-
-        
+        </section>
     </main>
-
-    <!-- latex -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-	<script type="text/x-mathjax-config">
-	MathJax.Hub.Config({
-	tex2jax: {
-		inlineMath: [['$','$'], ['\\(','\\)']],
-		displayMath: [['$$','$$'], ['\\[','\\]']],
-		processEscapes: true
-	}
-	});
-	</script>
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [['$','$'], ['\\(','\\)']],
+            displayMath: [['$$','$$'], ['\\[','\\]']],
+            processEscapes: true
+        }
+    });
+    </script>
+    <script>
+        const toggleButton = document.getElementById('dark-mode-toggle');
+        toggleButton.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+        });
+    </script>
 </body>
-
 </html>

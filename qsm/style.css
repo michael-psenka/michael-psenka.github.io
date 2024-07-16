@@ -13,7 +13,8 @@ body {
 	justify-content: center;
 	align-items: center;
 	text-align: center;
-    color: #333;
+    color: var(--text-color);
+    background-color: var(--background-color);
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -26,11 +27,11 @@ p {
 
 /* Layout and Spacing */
 header {
-    background-color: #f5f5f5;
-    color: #333;
+    background-color: var(--header-bg);
+    color: var(--header-text);
     text-align: center;
     padding: 1.5rem;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--header-border);
 }
 
 header h1 {
@@ -83,7 +84,6 @@ section video {
 	position: relative;
 	padding-bottom: 3rem;
 	padding-top: 3rem;
-	/* height: 0; */
 	overflow: hidden;
 }
 
@@ -100,8 +100,8 @@ figcaption {
 
 .link-button {
     display: inline-block;
-    background-color: #007BFF;
-    color: #FFF;
+    background-color: var(--button-bg);
+    color: var(--button-text);
     text-decoration: none;
     padding: 0.75rem 1.5rem;
     border-radius: 4px;
@@ -109,22 +109,22 @@ figcaption {
 }
 
 .link-button:hover {
-    background-color: #0056b3;
-    color: #FFF;
+    background-color: var(--button-hover-bg);
+    color: var(--button-text);
 }
 
 .citation {
 	text-align: left;
 	padding: 1rem;
-	background-color: #efefef;
+	background-color: var(--citation-bg);
 }
 
 footer {
-    background-color: #f5f5f5;
-    color: #333;
+    background-color: var(--footer-bg);
+    color: var(--footer-text);
     text-align: center;
     padding: 1rem;
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid var(--footer-border);
     margin-top: 2rem;
 }
 
@@ -150,22 +150,49 @@ footer {
 }
 
 /* mobile friendly */
-
 @media screen and (max-width: 830px) {
-    body  {
-        /* resize body to be screen width */
-      width: 100%;
-      display: inline-block;
-      vertical-align: middle;
+    body {
+        width: 100%;
+        display: inline-block;
+        vertical-align: middle;
     }
 
-    /* change width of iframe with id youtube_vid to 100% */
     #youtube_vid {
         width: 100%;
     }
 
-/* fix overflow problems */
     .citation {
         white-space: pre-wrap;
     }
-  }
+}
+
+/* Dark Mode Variables */
+:root {
+    --background-color: #ffffff;
+    --text-color: #333333;
+    --header-bg: #f5f5f5;
+    --header-text: #333333;
+    --header-border: #e0e0e0;
+    --button-bg: #007BFF;
+    --button-text: #ffffff;
+    --button-hover-bg: #0056b3;
+    --citation-bg: #efefef;
+    --footer-bg: #f5f5f5;
+    --footer-text: #333333;
+    --footer-border: #e0e0e0;
+}
+
+body.dark-mode {
+    --background-color: #121212;
+    --text-color: #e0e0e0;
+    --header-bg: #1e1e1e;
+    --header-text: #e0e0e0;
+    --header-border: #333333;
+    --button-bg: #333333;
+    --button-text: #ffffff;
+    --button-hover-bg: #555555;
+    --citation-bg: #1e1e1e;
+    --footer-bg: #1e1e1e;
+    --footer-text: #e0e0e0;
+    --footer-border: #333333;
+}
