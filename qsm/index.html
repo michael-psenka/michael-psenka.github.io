@@ -6,14 +6,14 @@
     <script src="https://kit.fontawesome.com/9987b45862.js" crossorigin="anonymous"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Learning a Diffusion Model Policy from Rewards via Q-Score Matching</title>
-    <link rel="stylesheet" href="style.css?v=1.1">
+    <link rel="stylesheet" href="style.css?v=1.0">
     <link rel="icon" href="favicon.ico" />
 </head>
 <body>
     <header>
         <h1>Learning a Diffusion Model Policy from Rewards via Q-Score Matching</h1>
         <h2>Michael Psenka*, Alejandro Escontrela*, Pieter Abbeel, Yi Ma</h2>
-        <button id="dark-mode-toggle" class="link-button"><i class="fa-solid fa-moon"></i> Toggle Dark Mode</button>
+        <button id="dark-mode-toggle" class="icon-button"><i class="fa-solid fa-moon" id="dark-mode-icon"></i></button>
     </header>
     <main>
         <div>
@@ -21,18 +21,19 @@
             <a href="https://github.com/Alescontrela/score_matching_rl" target="_blank" class="link-button"><i class="fa-solid fa-code"></i> Code</a>
         </div>
         <section id="citation">
-            <h2>Citation</h2>
-            <div class="citation-container">
-                <pre class="citation">
-                    @inproceedings{psenka2024qsm,
-                        title={Learning a Diffusion Model Policy from Rewards via Q-Score Matching},
-                        author={Psenka, Michael and Escontrela, Alejandro and Abbeel, Pieter and Ma, Yi},
-                        booktitle={Proceedings of the 41st International Conference on Machine Learning},
-                        year={2024}
-                      }
-                </pre>
-            </div>
-        </section>
+        <h2>Citation</h2>
+        <div class="citation-container">
+            <pre class="citation" id="citation-text">
+@inproceedings{psenka2024qsm,
+    title={Learning a Diffusion Model Policy from Rewards via Q-Score Matching},
+    author={Psenka, Michael and Escontrela, Alejandro and Abbeel, Pieter and Ma, Yi},
+    booktitle={Proceedings of the 41st International Conference on Machine Learning},
+    year={2024}
+}
+            </pre>
+            <button class="link-button" id="copy-button"><i class="fa-solid fa-copy"></i></button>
+        </div>
+    </section>
     </main>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
     <script type="text/x-mathjax-config">
@@ -46,8 +47,45 @@
     </script>
     <script>
         const toggleButton = document.getElementById('dark-mode-toggle');
+        const darkModeIcon = document.getElementById('dark-mode-icon');
+
+        // Function to update icon and title
+        function updateIconAndTitle() {
+            if (document.body.classList.contains('dark-mode')) {
+                darkModeIcon.classList.remove('fa-moon');
+                darkModeIcon.classList.add('fa-sun');
+                toggleButton.setAttribute('title', 'Light Mode');
+            } else {
+                darkModeIcon.classList.remove('fa-sun');
+                darkModeIcon.classList.add('fa-moon');
+                toggleButton.setAttribute('title', 'Dark Mode');
+            }
+        }
+
+        // Check for the user's color scheme preference
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+        }
+
+        // Update icon and title based on the initial state
+        updateIconAndTitle();
+
+        // Toggle dark mode on button click
         toggleButton.addEventListener('click', () => {
             document.body.classList.toggle('dark-mode');
+            updateIconAndTitle();
+        });
+
+        const copyButton = document.getElementById('copy-button');
+        copyButton.addEventListener('click', () => {
+            const citationText = document.getElementById('citation-text').innerText;
+            navigator.clipboard.writeText(citationText).then(() => {
+                alert('Citation copied to clipboard!');
+            }, () => {
+                alert('Failed to copy citation.');
+            });
         });
     </script>
 </body>

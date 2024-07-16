@@ -9,10 +9,10 @@
 body {
     font-family: 'Roboto', sans-serif;
     line-height: 1.6;
-	display: grid;
-	justify-content: center;
-	align-items: center;
-	text-align: center;
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
     color: var(--text-color);
     background-color: var(--background-color);
 }
@@ -32,6 +32,7 @@ header {
     text-align: center;
     padding: 1.5rem;
     border-bottom: 1px solid var(--header-border);
+    position: relative; /* Added to position the button within this container */
 }
 
 header h1 {
@@ -44,6 +45,26 @@ header h2 {
     font-size: 1.25rem;
 }
 
+.icon-button {
+    position: absolute;
+    bottom: 10px; /* Adjust as needed */
+    right: 10px; /* Adjust as needed */
+    background: none; /* Remove button background */
+    border: none; /* Remove button border */
+    padding: 0; /* Remove button padding */
+    cursor: pointer; /* Change cursor to pointer */
+    color: var(--header-text); /* Match the header text color */
+    font-size: 1.5rem; /* Adjust icon size as needed */
+}
+
+.icon-button i {
+    pointer-events: none; /* Ensure the icon itself doesn't intercept clicks */
+}
+
+.icon-button:hover {
+    color: var(--button-hover-bg); /* Change color on hover */
+}
+
 main {
     padding: 2rem;
     max-width: 1200px;
@@ -53,6 +74,7 @@ main {
 ul, ol {
     list-style-position: inside;
 }
+
 section {
     margin-bottom: 3rem;
 }
@@ -81,10 +103,10 @@ section video {
 }
 
 .video-container {
-	position: relative;
-	padding-bottom: 3rem;
-	padding-top: 3rem;
-	overflow: hidden;
+    position: relative;
+    padding-bottom: 3rem;
+    padding-top: 3rem;
+    overflow: hidden;
 }
 
 figure {
@@ -113,12 +135,6 @@ figcaption {
     color: var(--button-text);
 }
 
-.citation {
-	text-align: left;
-	padding: 1rem;
-	background-color: var(--citation-bg);
-}
-
 footer {
     background-color: var(--footer-bg);
     color: var(--footer-text);
@@ -141,12 +157,43 @@ footer {
 
 /* fix overflow problems */
 .citation-container {
-    overflow: hidden;
-    text-overflow: ellipsis;
+    display: flex;
+    justify-content: flex-start; /* Aligns the content to the left */
+    align-items: center;
+    margin-top: 1rem;
+    overflow-x: auto;
+    max-width: 100%;
+    padding: 1rem;
+    border: 1px solid var(--text-color);
+    border-radius: 5px;
+    background-color: var(--citation-bg);
+    position: relative; /* Added to position the button within this container */
 }
 
 .citation {
-    white-space: pre-wrap;
+    white-space: pre;
+    text-align: left;
+    /* padding-left: 1rem; */
+}
+
+#copy-button {
+    position: absolute;
+    bottom: 10px; /* Adjust as needed */
+    right: 10px; /* Adjust as needed */
+    background: none; /* Remove button background */
+    border: none; /* Remove button border */
+    padding: 0; /* Remove button padding */
+    cursor: pointer; /* Change cursor to pointer */
+    color: var(--text-color); /* Match the text color */
+    font-size: 1.2rem; /* Adjust icon size as needed */
+}
+
+#copy-button i {
+    pointer-events: none; /* Ensure the icon itself doesn't intercept clicks */
+}
+
+#copy-button:hover {
+    color: var(--button-hover-bg); /* Change color on hover */
 }
 
 /* mobile friendly */
@@ -159,10 +206,6 @@ footer {
 
     #youtube_vid {
         width: 100%;
-    }
-
-    .citation {
-        white-space: pre-wrap;
     }
 }
 
