@@ -261,7 +261,7 @@ const icon = document.getElementById('research-desc-click');
 const textTitle = document.getElementById('focus-text');
 const textBody = document.getElementById('research-desc-body');
 // the subject of the text being unrolled
-let focus = 'geometric AI';
+let focus = 'mathematical approaches to AI';
 // controls what section of text we're on
 let index = 0;
 // don't want button clickable while animating 
@@ -273,11 +273,19 @@ let requestId;
 let fadeTime = 300;
 
 // description text to add
+
+
 const texts = [
-	' By looking at the shape of a learned reward structure (e.g. Q-function), we can optimize over more interesting policy classes, such as diffusion models, and develop new learning algorithms to better exploit difficult-to-learn aspects, such as long-term behavior.',
-	' Looking at geometric structure of learned representations of datasets can be a powerful tool for developing practical, general nonlinear ICA algorithms that are data-efficient and automatic (hyperpameters, network width & depth all build themselves).',
-	' The alignment of features from different modalities (e.g. images and text) is a fundamental problem in AI and a fundamentally geometric problem. Finding feature alignment methods that respect the intrinsic structure of both the sequence-type sentence and signal-type image is an open problem I am currently working on.'
-];
+	' I have worked a lot in flow-based models, whether it be engineering a new model (e.g. geometric flows on data) or applying existing ones in new way (e.g. diffusion model policies purely from rewards). The general area of "flow-based models" is one that\'s quite active and has branched widely since diffusion models took off, and I feel at the core this model class has great general potential beyond just generative modeling.',
+	' In reinforcement learning, I work on developing algorithms that utilize geometric insights to better address challenges such as long-term behavior and exploration. For example, by analyzing the shape of learned reward structures, we can optimize over more expressive policy classes like diffusion models, leading to policies that explore their environments more effectively.',
+	' I am a geometer at heart, so I look at deep learning from a geometric perspective, such as the "shape" of datasets, representations, functions, etc. Many interesting questions, such as those on representation structure (e.g. disentangled representation learning) and alignment/similarity (e.g. multimodal alignment), are fundamentally geometric.',
+	' Ultimately, my goal is to identify unifying principles that enhance deep learning methods across various domains. I have mainly worked in computer vision and reinforcement learning, and am now starting work in computational physics/bio. By establishing principles and design choices that tend to work across domains, I aim to create autonomous and adaptable deep learning methods that can be applied with confidence and understand for any application domain.'
+]
+// const texts = [
+// 	' By looking at the shape of a learned reward structure (e.g. Q-function), we can optimize over more interesting policy classes, such as diffusion models, and develop new learning algorithms to better exploit difficult-to-learn aspects, such as long-term behavior.',
+// 	' Looking at geometric structure of learned representations of datasets can be a powerful tool for developing practical, general nonlinear ICA algorithms that are data-efficient and automatic (hyperpameters, network width & depth all build themselves).',
+// 	' The alignment of features from different modalities (e.g. images and text) is a fundamental problem in AI and a fundamentally geometric problem. Finding feature alignment methods that respect the intrinsic structure of both the sequence-type sentence and signal-type image is an open problem I am currently working on.'
+// ];
 // const texts = [
 // 	' I focus on cases where data is not necessarily labeled (or "supervised") by a human. This both opens up a lot more use cases (much more data is unlabeled than labeled) and makes the problem more mathematically interesting, since we now need to make the most of the data itself.',
 // 	' One common domain of unsupervised learning is representation learning, where we seek to encode our data into a different format that is more useful for various downstream tasks. The desired encoded format is usually quite compressed, and we desire it to only contain the "intrinsic information" of our data.',
@@ -296,10 +304,11 @@ icon.addEventListener('click', () => {
 
 	if (!isAnimating) {
 		// title texts to loop through.
-		focus = focus === 'geometric AI' ? 'geometric AI, reinforcement learning' :
-			focus === 'geometric AI, reinforcement learning' ? 'geometric AI, reinforcement learning, disentangled representation learning' :
-				focus === 'geometric AI, reinforcement learning, disentangled representation learning' ? 'geometric AI, reinforcement learning, disentangled representation learning, multimodal alignment' :
-					'geometric AI';
+		focus = focus === 'mathematical approaches to AI' ? 'mathematical approaches to AI, flow-based models' :
+			focus === 'mathematical approaches to AI, flow-based models' ? 'mathematical approaches to AI, flow-based models, reinforcement learning and exploration' :
+				focus === 'mathematical approaches to AI, flow-based models, reinforcement learning and exploration' ? 'mathematical approaches to AI, flow-based models, reinforcement learning and exploration, geometric AI' :
+					focus === 'mathematical approaches to AI, flow-based models, reinforcement learning and exploration, geometric AI' ? 'mathematical approaches to AI, flow-based models, reinforcement learning and exploration, geometric AI, cross-domain principles for deep learning' :
+						'geometric AI';
 		textTitle.style.opacity = '0';
 		setTimeout(() => {
 			textTitle.innerHTML = focus;
@@ -323,22 +332,24 @@ function animateText() {
 		const currentText = texts[index];
 		const currentTextLength = currentText.length;
 		let i = 0;
+		const charsPerFrame = 4;
 
 		// for certain indexes, we want to insert a line break at the beginning.
-		if (index == 0 || index === 1 || index === 2) {
-			icon.insertAdjacentHTML('beforebegin', '<br><br>');
-		}
+		// if (index == 0 || index === 1 || index === 2) {
+		icon.insertAdjacentHTML('beforebegin', '<br><br>');
+		// }
 		const updateText = () => {
 			if (i < currentTextLength) {
 
-				// bolding the little intro blurb for final paragraph
-				if (index == 5 && i < 29) {
-					// for the last text, we want to insert a line break at the beginning.
-					icon.insertAdjacentHTML('beforebegin', '<b>' + currentText.charAt(i) + '</b>');
-				} else {
-					icon.insertAdjacentHTML('beforebegin', currentText.charAt(i));
-				}
-				i++;
+				const textChunk = currentText.slice(i, i + charsPerFrame);
+
+                // bolding the little intro blurb for final paragraph
+                if (index == 5 && i < 29) {
+                    icon.insertAdjacentHTML('beforebegin', '<b>' + textChunk + '</b>');
+                } else {
+                    icon.insertAdjacentHTML('beforebegin', textChunk);
+                }
+                i += charsPerFrame;
 				requestId = requestAnimationFrame(updateText);
 			} else {
 				// if not final time, turn on link again when done animating, if not the final time
