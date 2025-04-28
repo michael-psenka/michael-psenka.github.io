@@ -193,11 +193,13 @@ window.addEventListener('load', function () {
 
 		// Get the author names. first, convert sequences of spaces to a single space
 		var names = author.innerHTML.replace(/\s\s+/g, ' ');
-		// we then remove all periods and asterisks
+		// Create a copy of the original text for searching and replacing
+		var originalText = names;
+		// we then remove all periods and asterisks only for the names array we'll iterate through
 		names = names.replace(/\.|\*/g, '');
 		// finally, we then split by the comma, space
 		names = names.split(', ');
-
+        console.log(names);
 		// Loop through each author name
 		names.forEach(name => {
 
@@ -241,13 +243,28 @@ window.addEventListener('load', function () {
 				return;
 			}
 
-			// format link name to lowercase, and replace space with +
-			nameLink = name.toLowerCase().replace(' ', '+');
-			// Create a new link element
-			const link = `<a href="https://www.google.com/search?q=${nameLink}&btnI" target="_blank">${name}</a>`;
+			else if (name == 'Alejandro Escontrela') {
+				const link = `<a href="https://www.escontrela.me/" target="_blank">${name}</a>`;
+				author.innerHTML = author.innerHTML.replace(name, link);
+				return;
+			}
 
-			// Replace the author name with the link
-			author.innerHTML = author.innerHTML.replace(name, link);
+			// Find the original name with dots in the original text
+			// Use a regex that matches the name but allows for . characters
+			const namePattern = name.replace(/(\w+)/g, '\\b$1\\b').replace(/\s+/g, '[\\s\\.]+');
+			const regex = new RegExp(namePattern);
+			const originalName = originalText.match(regex);
+			
+			if (originalName) {
+				// format link name to lowercase, and replace space with +
+				// Remove dots for the search query
+				const nameLink = name.toLowerCase().replace(/\s+/g, '+');
+				// Create a new link element using the original name for display
+				const link = `<a href="https://www.google.com/search?q=${nameLink}&btnI" target="_blank">${originalName[0]}</a>`;
+				
+				// Replace the author name with the link
+				author.innerHTML = author.innerHTML.replace(originalName[0], link);
+			}
 		});
 	});
 });
