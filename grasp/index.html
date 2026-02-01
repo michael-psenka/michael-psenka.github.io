@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GRASP: Parallel Stochastic Gradient-Based Planning for World Models</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/9987b45862.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="bg-gradient"></div>
+    
+    <header>
+        <h1>GRASP: Parallel Stochastic Gradient-Based Planning for World Models</h1>
+        <h2 class="authors">
+            <a href="https://michaelpsenka.io" target="_blank">Michael Psenka</a><sup>1,2,&#9675;</sup>,
+            <span>Michael Rabbat</span><sup>2</sup>,
+            <span>Aditi Krishnapriyan</span><sup>1</sup>,
+            <span>Yann LeCun</span><sup>2,3,*</sup>,
+            <span>Amir Bar</span><sup>2,*</sup>
+        </h2>
+        <p class="affiliations">
+            <sup>1</sup>University of California, Berkeley &nbsp;&nbsp;
+            <sup>2</sup>Meta FAIR &nbsp;&nbsp;
+            <sup>3</sup>New York University
+        </p>
+        <p class="contributions">
+            <sup>*</sup>Equally Advised &nbsp;&nbsp;
+            <sup>&#9675;</sup>Work done at Meta
+        </p>
+        <button id="dark-mode-toggle" class="icon-button" title="Toggle Dark Mode">
+            <i class="fa-solid fa-moon" id="dark-mode-icon"></i>
+        </button>
+    </header>
+
+    <main>
+        <h3 class="tldr"><strong>tl;dr:</strong> A new gradient-based planner for world models, incorporating a lifted-states approach, stochastic optimization, and a reshaped gradient structure for a smoother optimization landscape.</h3>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="#" target="_blank" class="link-button">
+                <i class="fa-solid fa-scroll"></i> Paper
+            </a>
+            <span class="link-button disabled" title="Coming soon!">
+                <i class="fa-solid fa-code"></i> Code (soon!)
+            </span>
+        </div>
+
+        <!-- Hero Figure -->
+        <section class="hero-figure">
+            <img src="figs/examples.jpg" alt="GRASP examples" class="figure-full">
+            <p class="figure-caption">
+                <em>Virtual states learned through planning.</em> All examples are instantiations of our planner at horizon 50 in the Point-Maze, Wall-Single, and Push-T environments. All world models are over visual input. Regardless of the dynamics constraint relaxation and state noising, directly optimized states find realistic, non-greedy paths towards the goal.
+            </p>
+            <img src="figs/ballnav_demo.gif" alt="Ball navigation demo" class="figure-small">
+            <p class="figure-caption">
+                Exploration through state noising and a relaxed dynamics loss in a synthetic navigation environment (state-based). State-based exploration allows for more stable exploration around multiple greedy minima.
+            </p>
+        </section>
+
+        <!-- Abstract -->
+        <section id="abstract">
+            <h2>Abstract</h2>
+            <div class="content-card">
+                <p class="abstract-text">
+                    World models simulate environment dynamics from raw sensory inputs like video. However, using them for planning can be challenging due to the vast and unstructured search space. We propose a robust and highly parallelizable planner that leverages the differentiability of the learned world model for efficient optimization, solving long-horizon control tasks from visual input. Our method treats states as optimization variables ("virtual states") with soft dynamics constraints, enabling parallel computation and easier optimization. To facilitate exploration and avoid local optima, we introduce stochasticity into the states. To mitigate sensitive gradients through high-dimensional vision-based world models, we modify the gradient structure to descend towards valid plans while only requiring action-input gradients. Our planner, which we call <strong>GRASP</strong> (Gradient RelAxed Stochastic Planner), can be viewed as a stochastic version of a non-condensed or collocation-based optimal controller. We provide theoretical justification and experiments on video-based world models, where our resulting planner outperforms existing planning algorithms like the cross-entropy method (CEM) and vanilla gradient-based optimization (GD) on long-horizon experiments, both in success rate and time to convergence.
+                </p>
+            </div>
+        </section>
+
+        <!-- Method Overview -->
+        <section id="method">
+            <h2>Planning with world models is deceptively hard</h2>
+            <div class="content-card">
+                <p>
+                    We assume a learned world model $F_\theta$ predicts the next latent state:
+                </p>
+                <p class="equation">
+                    $$s_{t+1} = F_\theta(s_t, a_t), \qquad a_t \in \mathbb{R}^k.$$
+                </p>
+                <p>
+                    Given $s_0$ and a goal $g$, the standard optimization-based planner chooses actions $\mathbf{a}=(a_0,\dots,a_{T-1})$ by rolling out the model and minimizing terminal error:
+                </p>
+                <p class="equation">
+                    $$\min_{\mathbf{a}} \;\;\big|s_T(\mathbf{a}) - g\big|_2^2, \quad \text{where } s_T(\mathbf{a}) = F_\theta^T(s_0,\mathbf{a}).$$
+                </p>
+                <p>
+                    This looks simple, but it creates a deep computation graph (a $T$-step composition of $F_\theta$), which is both expensive and often poorly conditioned. The loss landscape can be highly non-greedy: successful plans may need to move <em>away</em> from the goal before moving toward it.
+                </p>
+                <div class="method-figure">
+                    <img src="figs/loss_landscape.png" alt="Loss landscape visualization">
+                </div>
+                <p class="figure-caption">
+                    <em>Planning is non-greedy and the loss can be jagged.</em> (a) Successful trajectories can temporarily increase distance to the goal. (b) Standard rollout losses can be sharp and brittle. (c) Our objective smooths the landscape during exploration.
+                </p>
+            </div>
+
+            <h2>Lifting planning into virtual states to parallelize and stabilize</h2>
+            <div class="content-card">
+                <p>
+                    Instead of forcing a serial rollout during optimization, we introduce intermediate <strong>virtual states</strong> $\mathbf{s}=(s_1,\dots,s_{T-1})$ and enforce dynamics only through <em>pairwise consistency</em>:
+                </p>
+                <p class="equation">
+                    $$\min_{\mathbf{s},\mathbf{a}} \;\; \sum_{t=0}^{T-1} \big|F_\theta(s_t,a_t)-s_{t+1}\big|_2^2, \quad \text{with } s_0\text{ fixed and } s_T=g.$$
+                </p>
+                <p>
+                    This "lifted" view has a big practical benefit:
+                </p>
+                <ul>
+                    <li><strong>All model evaluations $F_\theta(s_t,a_t)$ are parallel across time.</strong> No $T$-step serial rollout is needed just to compute a training signal.</li>
+                </ul>
+                <p>
+                    But naïvely optimizing states introduces two common failure modes:
+                </p>
+                <ol>
+                    <li><strong>Local minima in state space</strong> (e.g., "phantom" trajectories that cut through walls).</li>
+                    <li><strong>Brittle state gradients</strong> in high-dimensional latent spaces (the optimizer can exploit tiny off-manifold perturbations in $s_t$).</li>
+                </ol>
+                <div class="subfigure-container">
+                    <div class="subfigure">
+                        <img src="figs/adversarial_example_normal.png" alt="Expected behavior">
+                        <p class="subfigure-caption">(a) Expected behavior</p>
+                    </div>
+                    <div class="subfigure">
+                        <img src="figs/adversarial_example_adv.png" alt="Adversarial example">
+                        <p class="subfigure-caption">(b) Adversarial example</p>
+                    </div>
+                </div>
+                <p class="figure-caption">
+                    <em>Sensitivity of state gradient structure.</em> Examples of three states far away from the goal on the right (either in-distribution or out-of-distribution), such that taking a small step along the gradient $s' = s - \epsilon \nabla_s \mathcal{L}(s), \mathcal{L}(s) = \| F_\theta(s, a=\mathbf{0}) - g\|_2^2$, leads to a nearby state $s'$ that solves the planning problem in a single step: $F_\theta(s', \mathbf{0}) = g$. Thus, optimizing states directly through the world model $F_\theta$ can be quite challenging.
+                </p>
+                <p>
+                    That leads to the two ingredients that make the method work.
+                </p>
+            </div>
+
+            <h2>Ingredient 1: exploration by injecting noise into the virtual states</h2>
+            <div class="content-card">
+                <p>
+                    Even with a smoother objective, planning remains nonconvex. We add lightweight exploration by noising the <strong>state iterates</strong> during optimization:
+                </p>
+                <ul>
+                    <li>Update $\mathbf{a}$ by gradient descent on $\mathcal{L}$,</li>
+                    <li>Update $\mathbf{s}$ by a descent-like step plus Gaussian noise.</li>
+                </ul>
+                <p>
+                    A simple version is:
+                </p>
+                <p class="equation">
+                    $$s_t \leftarrow s_t - \eta_s \,\partial_{s_t}\mathcal{L} \;+\; \sigma_{\text{state}}\xi,\qquad a_t \leftarrow a_t - \eta_a\nabla_{a_t}\mathcal{L}, \quad \xi\sim\mathcal{N}(0,I).$$
+                </p>
+                <p>
+                    In practice, this helps the planner "hop" out of bad basins in the lifted space, while actions remain guided by stable gradients.
+                </p>
+            </div>
+
+            <h2>Ingredient 2: cut brittle state-input gradients, keep action gradients</h2>
+            <div class="content-card">
+                <p>
+                    Directly backpropagating through the state input $s_t$ can be adversarial: the optimizer can "cheat" by nudging $s_t$ off-manifold so that the model outputs whatever is convenient. To prevent this, we <strong>stop gradients through the state inputs</strong> to the world model.
+                </p>
+                <p>
+                    Let $\bar{s}_t$ denote a stop-gradient copy of $s_t$ (same value, no gradient). We use:
+                </p>
+                <p class="equation">
+                    $$\mathcal{L}_{\text{dyn}}^{\text{sg}}(\mathbf{s},\mathbf{a}) = \sum_{t=0}^{T-1}\big|F_\theta(\bar{s}_t,a_t)-s_{t+1}\big|_2^2.$$
+                </p>
+                <p>
+                    Now:
+                </p>
+                <ul>
+                    <li>$a_t$ still gets a clean gradient signal through $F_\theta(\bar{s}_t,a_t)$,</li>
+                    <li>but we avoid optimizing $s_t$ via fragile $\nabla_{s}F_\theta$ directions.</li>
+                </ul>
+
+                <h3>Dense goal shaping</h3>
+                <p>
+                    If we only enforce pairwise consistency, the optimization can drift toward "matching itself" rather than progressing toward $g$. So we add a simple <strong>one-step-to-goal shaping</strong> term:
+                </p>
+                <p class="equation">
+                    $$\mathcal{L}_{\text{goal}}^{\text{sg}}(\mathbf{s},\mathbf{a}) = \sum_{t=0}^{T-1}\big|F_\theta(\bar{s}_t,a_t)-g\big|_2^2.$$
+                </p>
+                <p>
+                    Final objective (two terms, one knob):
+                </p>
+                <p class="equation">
+                    $$\mathcal{L}(\mathbf{s},\mathbf{a}) = \mathcal{L}_{\text{dyn}}^{\text{sg}}(\mathbf{s},\mathbf{a}) + \gamma \,\mathcal{L}_{\text{goal}}^{\text{sg}}(\mathbf{s},\mathbf{a}).$$
+                </p>
+                <p>
+                    Intuition:
+                </p>
+                <ul>
+                    <li>Cutting state gradients leads to smoother state optimization and removal of state adversarial examples.</li>
+                    <li><strong>Goal term</strong> makes each action step push predicted next-state toward the goal.</li>
+                </ul>
+            </div>
+
+            <h2>Periodic "sync": briefly switch back to true rollout gradients for refinement</h2>
+            <div class="content-card">
+                <p>
+                    The lifted, grad-cut objective is great for <strong>fast parallel exploration</strong>, but it's still an approximation of the original serial rollout objective. So every $K_{\text{sync}}$ iterations we "sync":
+                </p>
+                <ol>
+                    <li><strong>Roll out</strong> from $s_0$ using the current actions $\mathbf{a}$ (a standard serial rollout).</li>
+                    <li>Take a few small gradient steps on the original terminal loss:
+                        <p class="equation">
+                            $$\mathbf{a} \leftarrow \mathbf{a} - \eta_{\text{sync}}\nabla_{\mathbf{a}}\big|s_T(\mathbf{a})-g\big|_2^2.$$
+                        </p>
+                    </li>
+                </ol>
+                <p>
+                    Intuition:
+                </p>
+                <ul>
+                    <li>The <strong>parallel lifted phase</strong> explores a smoother landscape, while a few steps of full GD allows for the benefits of both the smooth landspace of the lifted dynamics optimization and the sharpness of the full GD landscape.</li>
+                </ul>
+            </div>
+
+            <h2>Putting it together</h2>
+            <div class="content-card">
+                <p>
+                    Each optimization loop alternates between:
+                </p>
+                <ul>
+                    <li><strong>Parallel lifted updates</strong> on $(\mathbf{s},\mathbf{a})$ using $\mathcal{L}$ (grad-cut on state inputs + dense goal shaping + state noise)</li>
+                    <li><strong>Occasional rollout sync</strong> updating only $\mathbf{a}$ with full backprop through time</li>
+                </ul>
+                <p>
+                    This gives a planner that is:
+                </p>
+                <ul>
+                    <li>parallelizable during exploration,</li>
+                    <li>robust to brittle state gradients,</li>
+                    <li>and still grounded by periodic true rollout refinement.</li>
+                </ul>
+                <div class="method-figure">
+                    <img src="figs/method.png" alt="Method diagram">
+                </div>
+                <p class="figure-caption">
+                    <em>Serial rollout vs. our lifted planning.</em> (a) Standard planners require a $T$-step rollout before getting a learning signal. (b) We optimize virtual states directly with pairwise consistency, enabling parallel model evaluations; we periodically sync with a short serial rollout for refinement.
+                </p>
+            </div>
+
+            <h2>Minimal pseudocode</h2>
+            <div class="content-card">
+                <ol>
+                    <li>Initialize actions $\mathbf{a}$ and virtual states $\mathbf{s}$ (with $s_0$ fixed, $s_T=g$).</li>
+                    <li>Repeat for $k=1..K$:
+                        <ul>
+                            <li>Compute $\mathcal{L}(\mathbf{s},\mathbf{a})$.</li>
+                            <li>Gradient step on actions: $a_t \leftarrow a_t - \eta_a \nabla_{a_t}\mathcal{L}$.</li>
+                            <li>State step + noise: $s_t \leftarrow s_t - \eta_s (\cdot) + \sigma_{\text{state}}\xi$.</li>
+                            <li>Every $K_{\text{sync}}$ steps: roll out from $s_0$ and do a few small steps on $|s_T(\mathbf{a})-g|^2$.</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+        </section>
+
+
+        <!-- Quantitative Results Table
+        <section id="quantitative" class="reveal">
+            <h2>Quantitative Results</h2>
+            <div class="table-container glass-card">
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Metric 1 ↑</th>
+                            <th>Metric 2 ↑</th>
+                            <th>Metric 3 ↓</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Baseline A</td>
+                            <td>0.72</td>
+                            <td>0.65</td>
+                            <td>0.35</td>
+                        </tr>
+                        <tr>
+                            <td>Baseline B</td>
+                            <td>0.78</td>
+                            <td>0.71</td>
+                            <td>0.28</td>
+                        </tr>
+                        <tr>
+                            <td>Previous SOTA</td>
+                            <td>0.82</td>
+                            <td>0.76</td>
+                            <td>0.22</td>
+                        </tr>
+                        <tr class="highlight-row">
+                            <td><strong>GRASP (Ours)</strong></td>
+                            <td><strong>0.91</strong></td>
+                            <td><strong>0.88</strong></td>
+                            <td><strong>0.12</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section> -->
+
+        <!-- Video Section
+        <section id="video" class="reveal">
+            <h2>Video</h2>
+            <div class="video-container glass-card">
+                <iframe 
+                    width="840" 
+                    height="473" 
+                    src="https://www.youtube.com/embed/VIDEO_ID_HERE" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+        </section> -->
+
+        <!-- Citation -->
+        <section id="citation">
+            <h2>Citation</h2>
+            <div class="citation-container glass-card">
+                <pre class="citation" id="citation-text">@article{psenka2026grasp,
+    title={GRASP: Parallel Stochastic Gradient-Based Planning for World Models},
+    author={Psenka, Michael and Rabbat, Michael and Krishnapriyan, Aditi and LeCun, Yann and Bar, Amir},
+    year={2026}
+}</pre>
+                <button class="copy-button" id="copy-button" title="Copy to clipboard">
+                    <i class="fa-solid fa-copy"></i>
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>
+            <a href="https://michaelpsenka.io">← Back to Michael Psenka's homepage</a>
+        </p>
+    </footer>
+
+    <!-- MathJax for LaTeX support -->
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [['$','$'], ['\\(','\\)']],
+                displayMath: [['$$','$$'], ['\\[','\\]']],
+                processEscapes: true
+            }
+        });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+    <script>
+        // ============================================
+        // Dark Mode Toggle
+        // ============================================
+        const toggleButton = document.getElementById('dark-mode-toggle');
+        const darkModeIcon = document.getElementById('dark-mode-icon');
+
+        function updateIconAndTitle() {
+            if (document.body.classList.contains('dark-mode')) {
+                darkModeIcon.classList.remove('fa-moon');
+                darkModeIcon.classList.add('fa-sun');
+                toggleButton.setAttribute('title', 'Switch to Light Mode');
+            } else {
+                darkModeIcon.classList.remove('fa-sun');
+                darkModeIcon.classList.add('fa-moon');
+                toggleButton.setAttribute('title', 'Switch to Dark Mode');
+            }
+        }
+
+        // Check for saved preference or system preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.body.classList.add('dark-mode');
+        }
+        updateIconAndTitle();
+
+        toggleButton.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+            updateIconAndTitle();
+        });
+
+        // ============================================
+        // Copy Citation Button
+        // ============================================
+        const copyButton = document.getElementById('copy-button');
+        copyButton.addEventListener('click', () => {
+            const citationText = document.getElementById('citation-text').innerText;
+            navigator.clipboard.writeText(citationText).then(() => {
+                const icon = copyButton.querySelector('i');
+                icon.classList.remove('fa-copy');
+                icon.classList.add('fa-check');
+                copyButton.classList.add('copied');
+                
+                setTimeout(() => {
+                    icon.classList.remove('fa-check');
+                    icon.classList.add('fa-copy');
+                    copyButton.classList.remove('copied');
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>
