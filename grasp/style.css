@@ -120,6 +120,11 @@ header h1 {
     margin-bottom: 0.75rem;
     letter-spacing: -0.02em;
     color: var(--header-text);
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
 }
 
 .authors {
@@ -127,6 +132,11 @@ header h1 {
     font-weight: 400;
     margin-bottom: 0.5rem;
     color: var(--header-text);
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
 }
 
 .authors a {
@@ -144,6 +154,11 @@ header h1 {
     font-size: 0.95rem;
     color: rgba(255, 255, 255, 0.85);
     margin-bottom: 0.25rem;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
 }
 
 .contributions {
@@ -151,6 +166,11 @@ header h1 {
     color: rgba(255, 255, 255, 0.7);
     font-style: italic;
     margin-bottom: 0.5rem;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
 }
 
 .tldr {
@@ -551,10 +571,20 @@ footer a {
     
     header h1 {
         font-size: 1.5rem;
+        padding-left: 0;
+        padding-right: 0;
     }
     
     .authors {
         font-size: 1rem;
+        padding-left: 0;
+        padding-right: 0;
+    }
+    
+    .affiliations,
+    .contributions {
+        padding-left: 0;
+        padding-right: 0;
     }
     
     main {
