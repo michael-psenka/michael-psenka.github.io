@@ -250,7 +250,7 @@
                         <ul>
                             <li>Compute $\mathcal{L}(\mathbf{s},\mathbf{a})$.</li>
                             <li>Gradient step on actions: $a_t \leftarrow a_t - \eta_a \nabla_{a_t}\mathcal{L}$.</li>
-                            <li>State step + noise: $s_t \leftarrow s_t - \eta_s (\cdot) + \sigma_{\text{state}}\xi$.</li>
+                            <li>State step + noise: $s_t \leftarrow s_t - \eta_s \nabla_{s_t}\mathcal{L} + \sigma_{\text{state}}\xi$.</li>
                             <li>Every $K_{\text{sync}}$ steps: roll out from $s_0$ and do a few small steps on $|s_T(\mathbf{a})-g|^2$.</li>
                         </ul>
                     </li>
