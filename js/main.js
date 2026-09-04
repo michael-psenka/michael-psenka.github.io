@@ -38,6 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let animationFrame;
     let lastStep = 0;
     let hasStarted = false;
+    let seededWidth;
 
     const seed = () => {
         cells = new Uint8Array(columns * rows);
@@ -146,16 +147,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const resize = () => {
         const scale = window.devicePixelRatio || 1;
-        cellSize = Math.max(
-            14,
-            Math.min(28, Math.floor(window.innerWidth / 30)),
-        );
-        columns = Math.ceil(window.innerWidth / cellSize);
-        rows = Math.ceil(window.innerHeight / cellSize);
+        const widthChanged = !cells || window.innerWidth !== seededWidth;
+
+        if (widthChanged) {
+            cellSize = Math.max(
+                14,
+                Math.min(28, Math.floor(window.innerWidth / 30)),
+            );
+            columns = Math.ceil(window.innerWidth / cellSize);
+            rows = Math.ceil(window.innerHeight / cellSize);
+            seededWidth = window.innerWidth;
+            seed();
+        }
+
         canvas.width = Math.ceil(window.innerWidth * scale);
         canvas.height = Math.ceil(window.innerHeight * scale);
         context.setTransform(scale, 0, 0, scale, 0, 0);
-        seed();
         draw();
     };
 
