@@ -60,6 +60,28 @@ document.addEventListener("DOMContentLoaded", () => {
     const randomColor = () =>
         Math.floor(Math.random() * colorPalette.length) + 1;
 
+    const showClickEffect = (x, y) => {
+        const directions = [
+            [0, -42],
+            [42, 0],
+            [0, 42],
+            [-42, 0],
+        ];
+
+        directions.forEach(([offsetX, offsetY]) => {
+            const particle = document.createElement("span");
+            particle.className = "life-click-particle";
+            particle.style.left = `${x}px`;
+            particle.style.top = `${y}px`;
+            particle.style.setProperty("--scatter-x", `${offsetX}px`);
+            particle.style.setProperty("--scatter-y", `${offsetY}px`);
+            particle.addEventListener("animationend", () => particle.remove(), {
+                once: true,
+            });
+            document.body.append(particle);
+        });
+    };
+
     const draw = () => {
         context.clearRect(0, 0, canvas.width, canvas.height);
         for (let row = 0; row < rows; row += 1) {
@@ -162,6 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener("click", (event) => {
         if (!hasStarted) return;
 
+        showClickEffect(event.clientX, event.clientY);
         const clickedColumn = Math.floor(event.clientX / cellSize);
         const clickedRow = Math.floor(event.clientY / cellSize);
 
