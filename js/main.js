@@ -1,5 +1,30 @@
 // Update copyright year automatically
 document.addEventListener("DOMContentLoaded", () => {
+    const root = document.documentElement;
+    const themeToggle = document.querySelector(".theme-toggle");
+    const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
+    const getTheme = () =>
+        root.dataset.theme || (systemTheme.matches ? "dark" : "light");
+    const updateThemeToggle = () => {
+        if (themeToggle) {
+            const theme = getTheme();
+            themeToggle.setAttribute(
+                "aria-label",
+                `Switch to ${theme === "dark" ? "light" : "dark"} theme`,
+            );
+        }
+    };
+
+    if (themeToggle) {
+        themeToggle.addEventListener("click", () => {
+            root.dataset.theme = getTheme() === "dark" ? "light" : "dark";
+            updateThemeToggle();
+            draw();
+        });
+    }
+    systemTheme.addEventListener("change", updateThemeToggle);
+    updateThemeToggle();
+
     const footer = document.querySelector("footer");
     if (footer) {
         const year = new Date().getFullYear();
@@ -24,6 +49,14 @@ document.addEventListener("DOMContentLoaded", () => {
         "#ffbded",
         "#81a0f2",
         "#6b4742",
+        "#a0d7fe",
+        "#ffebc2",
+        "#b7e6b0",
+    ];
+    const lightColorPalette = [
+        "#ffbded",
+        "#81a0f2",
+        "#a98a85",
         "#a0d7fe",
         "#ffebc2",
         "#b7e6b0",
@@ -85,6 +118,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const draw = () => {
         context.clearRect(0, 0, canvas.width, canvas.height);
+        const palette = (root.dataset.theme || (systemTheme.matches ? "dark" : "light")) === "light"
+            ? lightColorPalette
+            : colorPalette;
+
         for (let row = 0; row < rows; row += 1) {
             for (let column = 0; column < columns; column += 1) {
                 const index = row * columns + column;
@@ -92,7 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     context.fillStyle =
                         cellColors[index] === 0
                             ? initialColor
-                            : colorPalette[cellColors[index] - 1];
+                            : palette[cellColors[index] - 1];
                     context.fillRect(
                         column * cellSize,
                         row * cellSize,
